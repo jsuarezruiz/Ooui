@@ -96,7 +96,7 @@ namespace Xamarin.Forms
 
             public IIsolatedStorageFile GetUserStoreForApplication ()
             {
-                throw new NotImplementedException ();
+                return new LocalIsolatedStorageFile ();
             }
 
             public void OpenUriAction (Uri uri)
@@ -149,6 +149,15 @@ namespace Xamarin.Forms
         {
             public VisualElement View { get; set; }
             public Ooui.Element NativeView { get; set; }
+        }
+
+        public static void LoadApplication (Application application)
+        {
+            Application.Current = application;
+            var mainPage = application.MainPage;
+            if (mainPage != null) {
+                UI.Publish ("/", application.MainPage.GetOouiElement ());
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Ooui
 {
     class JsonConvert
     {
-        static void WriteJsonString (System.IO.TextWriter w, string s)
+        public static void WriteJsonString (System.IO.TextWriter w, string s)
         {
             w.Write ('\"');
             for (var i = 0; i < s.Length; i++) {
@@ -76,14 +76,17 @@ namespace Ooui
 
             if (value is double) {
                 w.Write (((double)value).ToString (icult));
+                return;
             }
 
             if (value is int) {
                 w.Write (((int)value).ToString (icult));
+                return;
             }
 
             if (value is float) {
                 w.Write (((float)value).ToString (icult));
+                return;
             }
 
             w.Write (Newtonsoft.Json.JsonConvert.SerializeObject (value));

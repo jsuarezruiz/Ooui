@@ -4,7 +4,7 @@
 | ------- | ------- | ----------- |
 | [![NuGet Package](https://img.shields.io/nuget/v/Ooui.svg)](https://www.nuget.org/packages/Ooui) | [Ooui](https://www.nuget.org/packages/Ooui) | Core library with HTML elements and a server |
 | [![NuGet Package](https://img.shields.io/nuget/v/Ooui.AspNetCore.svg)](https://www.nuget.org/packages/Ooui.AspNetCore) | [Ooui.AspNetCore](https://www.nuget.org/packages/Ooui.AspNetCore) | Integration with ASP.NET Core |
-| [![NuGet Package](https://img.shields.io/nuget/v/Ooui.Forms.svg)](https://www.nuget.org/packages/Ooui.Forms) | [Ooui.Forms](https://www.nuget.org/packages/Ooui.Forms) | Xamarin.Forms backend using Ooui |
+| [![NuGet Package](https://img.shields.io/nuget/v/Ooui.Forms.svg)](https://www.nuget.org/packages/Ooui.Forms) | [Ooui.Forms](https://www.nuget.org/packages/Ooui.Forms) | Xamarin.Forms backend using Ooui ([Status](Documentation/OouiFormsStatus.md)) |
 | [![NuGet Package](https://img.shields.io/nuget/v/Ooui.Wasm.svg)](https://www.nuget.org/packages/Ooui.Wasm) | [Ooui.Wasm](https://www.nuget.org/packages/Ooui.Wasm) | Package your app into a web assembly |
 
 Ooui (pronounced *weee!*) is a small cross-platform UI library for .NET that uses web technologies.
@@ -16,7 +16,7 @@ It presents a classic object-oriented UI API that controls a dumb browser. With 
 
 Head on over to [http://ooui.mecha.parts](http://ooui.mecha.parts) to tryout the samples.
 
-You can also load [https://s3.amazonaws.com/praeclarum.org/wasm/ooui-sample.html](https://s3.amazonaws.com/praeclarum.org/wasm/ooui-sample.html) to try the WebAssembly mode of Ooui running Xamarin.Forms. (That's Xamarin.Forms running right in your browser!)
+You can also load [https://s3.amazonaws.com/praeclarum.org/wasm/index.html](https://s3.amazonaws.com/praeclarum.org/wasm/index.html) to try the WebAssembly mode of Ooui running Xamarin.Forms. (That's Xamarin.Forms running right in your browser!)
 
 
 ## Try the Samples Locally
@@ -88,7 +88,7 @@ Ooui has been broken up into several packages to increase the variety of ways th
 <thead><tr><th>Ooui</th><th>Ooui.AspNetCore</th><th>Ooui.Forms</th><th>Ooui.Wasm</th><th></th></tr></thead>
 
 <tr>
-<td>&check;</td><td></td><td></td><td></td><td><a href="https://github.com/praeclarum/Ooui/wiki/Write-the-UI-using-the-web-DOM-and-use-the-built-in-web-server">Web DOM with the built-in web server</a></td>
+<td>&check;</td><td></td><td></td><td></td><td><a href="https://github.com/praeclarum/Ooui/wiki/Web-DOM-with-the-Built-in-Web-Server">Web DOM with the Built-in Web Server</a></td>
 </tr>
 
 <tr>
@@ -104,11 +104,11 @@ Ooui has been broken up into several packages to increase the variety of ways th
 </tr>
 
 <tr>
-<td>&check;</td><td></td><td></td><td>&check;</td><td>Web DOM with Web Assembly</td>
+<td>&check;</td><td></td><td></td><td>&check;</td><td><a href="https://github.com/praeclarum/Ooui/wiki/Web DOM-with-Web-Assembly">Web DOM with Web Assembly</a></td>
 </tr>
 
 <tr>
-<td>&check;</td><td></td><td>&check;</td><td>&check;</td><td>Xamarin.Forms with Web Assembly</td>
+<td>&check;</td><td></td><td>&check;</td><td>&check;</td><td><a href="https://github.com/praeclarum/Ooui/wiki/Xamarin.Forms-with-Web-Assembly">Xamarin.Forms with Web Assembly</a></td>
 </tr>
 
 </table>
