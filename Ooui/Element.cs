@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 
 namespace Ooui
 {
     public abstract class Element : Node
     {
         readonly Dictionary<string, object> attributes = new Dictionary<string, object> ();
+
+        Document document = null;
 
         public string ClassName {
             get => GetStringAttribute ("class", "");
@@ -88,6 +91,17 @@ namespace Ooui
         public event TargetEventHandler Wheel {
             add => AddEventListener ("wheel", value);
             remove => RemoveEventListener ("wheel", value);
+        }
+
+        public Document Document {
+            get {
+                if (document == null) {
+                    if (Interlocked.CompareExchange (ref document, new Document (), null) == null) {
+                        document.MessageSent += Document_MessageSent;
+                    }
+                }
+                return document;
+            }
         }
 
         /// <summary>
@@ -224,9 +238,24 @@ namespace Ooui
             }
         }
 
+        public void SetCapture (bool retargetToElement)
+        {
+            Call ("setCapture", retargetToElement);
+        }
+
+        public void Focus ()
+        {
+            Call ("focus");
+        }
+
         void HandleStylePropertyChanged (object sender, PropertyChangedEventArgs e)
         {
             SendSet ("style." + Style.GetJsName (e.PropertyName), Style[e.PropertyName]);
+        }
+
+        void Document_MessageSent (Message message)
+        {
+            Send (message);
         }
 
         protected virtual bool HtmlNeedsFullEndElement => false;

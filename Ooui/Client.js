@@ -1,6 +1,6 @@
 // Ooui v1.0.0
 
-var debug = false;
+var debug = true;
 
 const nodes = {};
 const hasText = {};
@@ -36,16 +36,6 @@ const inputEvents = {
     change: true,
     keyup: true,
 };
-
-// Try to close the socket gracefully
-window.onbeforeunload = function() {
-    if (socket != null) {
-        socket.close (1001, "Unloading page");
-        socket = null;
-        console.log ("Web socket closed");
-    }
-    return null;
-}
 
 function getSize () {
     return {
@@ -305,6 +295,7 @@ function processMessage (m) {
 }
 
 function fixupValue (v) {
+    var x, n;
     if (Array.isArray (v)) {
         for (x in v) {
             v[x] = fixupValue (v[x]);
@@ -316,6 +307,9 @@ function fixupValue (v) {
             // console.log("V", v);
             return getNode (v);
         }
+    }
+    else if (!!v && v.hasOwnProperty("id") && v.hasOwnProperty("k")) {
+        return fixupValue(v["id"])[v["k"]];
     }
     return v;
 }
@@ -341,10 +335,12 @@ var Module = {
         Module.FS_createPath ("/", "managed", true, true);
 
         var pending = 0;
-        this.assemblies.forEach (function(asm_name) {
+        var mangled_ext_re = new RegExp("\\.bin$");
+        this.assemblies.forEach (function(asm_mangled_name) {
+            var asm_name = asm_mangled_name.replace (mangled_ext_re, ".dll");
             if (debug) console.log ("Loading", asm_name);
             ++pending;
-            fetch ("managed/" + asm_name, { credentials: 'same-origin' }).then (function (response) {
+            fetch ("managed/" + asm_mangled_name, { credentials: 'same-origin' }).then (function (response) {
                 if (!response.ok)
                     throw "failed to load Assembly '" + asm_name + "'";
                 return response['arrayBuffer']();

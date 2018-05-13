@@ -8,7 +8,6 @@ namespace Ooui.Forms.Renderers
 {
     public class EntryRenderer : ViewRenderer<Entry, Ooui.TextInput>
     {
-        Ooui.Color _defaultTextColor;
         bool _disposed;
 
         static Size initialSize = Size.Zero;
@@ -25,8 +24,9 @@ namespace Ooui.Forms.Renderers
                 text = " ";
             }
             var size = text.MeasureSize (Element.FontFamily, Element.FontSize, Element.FontAttributes, widthConstraint, heightConstraint);
-            var vpadding = Element.FontSize;
-            size = new Size (size.Width, size.Height + vpadding);
+            var vpadding = 16;
+            var hpadding = 32;
+            size = new Size (size.Width + hpadding, size.Height + vpadding);
             return new SizeRequest (size, size);
         }
 
@@ -38,8 +38,10 @@ namespace Ooui.Forms.Renderers
             _disposed = true;
 
             if (disposing) {
+                if (Element != null) {
+                    Element.FocusChangeRequested -= Element_FocusChangeRequested;
+                }
                 if (Control != null) {
-                    //Control.Inputted -= OnEditingBegan;
                     Control.Input -= OnEditingChanged;
                     Control.Change -= OnEditingEnded;
                 }
@@ -52,8 +54,14 @@ namespace Ooui.Forms.Renderers
         {
             base.OnElementChanged (e);
 
+            if (e.OldElement != null) {
+                e.OldElement.FocusChangeRequested -= Element_FocusChangeRequested;
+            }
+
             if (e.NewElement == null)
                 return;
+
+            e.NewElement.FocusChangeRequested += Element_FocusChangeRequested;
 
             if (Control == null) {
                 var textField = new Ooui.TextInput ();
@@ -63,11 +71,7 @@ namespace Ooui.Forms.Renderers
 
                 textField.ClassName = "form-control";
 
-                _defaultTextColor = Colors.Black;
-
                 textField.Input += OnEditingChanged;
-
-                //textField.EditingDidBegin += OnEditingBegan;
                 textField.Change += OnEditingEnded;
             }
 
@@ -79,6 +83,15 @@ namespace Ooui.Forms.Renderers
             UpdateKeyboard ();
             UpdateAlignment ();
         }
+
+        void Element_FocusChangeRequested (object sender, VisualElement.FocusRequestArgs e)
+        {
+            if (e.Focus && Control != null) {
+                Control?.Focus ();
+                e.Result = true;
+            }
+        }
+
 
         protected override void OnElementPropertyChanged (object sender, PropertyChangedEventArgs e)
         {
@@ -135,12 +148,7 @@ namespace Ooui.Forms.Renderers
 
         void UpdateColor ()
         {
-            var textColor = Element.TextColor;
-
-            if (textColor.IsDefault || !Element.IsEnabled)
-                Control.Style.Color = _defaultTextColor;
-            else
-                Control.Style.Color = textColor.ToOouiColor ();
+            Control.Style.Color = Element.TextColor.ToOouiColor (OouiTheme.TextColor);
         }
 
         void UpdateFont ()

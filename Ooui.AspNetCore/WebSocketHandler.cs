@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace Ooui.AspNetCore
 {
@@ -16,13 +18,15 @@ namespace Ooui.AspNetCore
         static readonly ConcurrentDictionary<string, PendingSession> pendingSessions =
             new ConcurrentDictionary<string, PendingSession> ();
 
-        public static string BeginSession (HttpContext context, Element element)
+        public static string BeginSession (HttpContext context, Element element, bool disposeElementAfterSession, ILogger logger)
         {
             var id = Guid.NewGuid ().ToString ("N");
 
             var s = new PendingSession {
                 Element = element,
                 CreateTimeUtc = DateTime.UtcNow,
+                DisposeElementAfterSession = disposeElementAfterSession,
+                Logger = logger,
             };
 
             if (!pendingSessions.TryAdd (id, s)) {
@@ -31,8 +35,6 @@ namespace Ooui.AspNetCore
 
             return id;
         }
-
-
 
         public static async Task HandleWebSocketRequestAsync (HttpContext context)
         {
@@ -96,15 +98,36 @@ namespace Ooui.AspNetCore
             // OK, Run
             //
             var token = CancellationToken.None;
-            var webSocket = await context.WebSockets.AcceptWebSocketAsync ("ooui");
-            var session = new Ooui.WebSocketSession (webSocket, activeSession.Element, w, h, token);
-            await session.RunAsync ().ConfigureAwait (false);
+            System.Net.WebSockets.WebSocket webSocket = null;
+
+            void Error (string m, Exception e) => activeSession?.Logger?.LogWarning (e, m);
+
+            //
+            // Create a new session and let it handle everything from here
+            //
+            try {
+                webSocket = await context.WebSockets.AcceptWebSocketAsync ("ooui").ConfigureAwait (false);
+                var session = new Ooui.WebSocketSession (webSocket, activeSession.Element, activeSession.DisposeElementAfterSession, w, h, Error, token);
+                await session.RunAsync ().ConfigureAwait (false);
+            }
+            catch (System.Net.WebSockets.WebSocketException ex) when (ex.WebSocketErrorCode == System.Net.WebSockets.WebSocketError.ConnectionClosedPrematurely) {
+                // The remote party closed the WebSocket connection without completing the close handshake.
+            }
+            catch (Exception ex) {
+                context.Abort ();
+                activeSession?.Logger?.LogWarning (ex, "Web socket session failed");
+            }
+            finally {
+                webSocket?.Dispose ();
+            }
         }
 
         class PendingSession
         {
             public Element Element;
             public DateTime CreateTimeUtc;
+            public bool DisposeElementAfterSession;
+            public ILogger Logger;
         }
     }
 }
